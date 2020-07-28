@@ -10,6 +10,7 @@ const helpers = require("./helpers");
 const commonConfig = require("./webpack.common.config");
 const isProduction = process.env.NODE_ENV === "production";
 const environment = isProduction ? require("./env/prod.env") : require("./env/staging.env");
+const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 
 const prodWebpackConfig = merge(commonConfig, {
     output: {
@@ -29,7 +30,7 @@ const prodWebpackConfig = merge(commonConfig, {
             new TerserPlugin({
                 cache: true,
                 parallel: true,
-                sourceMap: !isProduction
+                sourceMap: !isProduction,
             }),
         ],
         splitChunks: {
@@ -54,6 +55,7 @@ const prodWebpackConfig = merge(commonConfig, {
         },
     },
     plugins: [
+        new CleanWebpackPlugin(),
         new webpack.EnvironmentPlugin(environment),
         new MiniCSSExtractPlugin({
             filename: "css/[name].[hash].css",

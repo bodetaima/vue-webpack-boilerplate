@@ -4,7 +4,6 @@ const VueLoaderPlugin = require("vue-loader/lib/plugin");
 const HtmlPlugin = require("html-webpack-plugin");
 const MiniCSSExtractPlugin = require("mini-css-extract-plugin");
 const helpers = require("./helpers");
-const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 const isDevelopment = process.env.NODE_ENV === "development";
 const env = process.env.NODE_ENV;
 
@@ -26,9 +25,39 @@ const commonWebpackConfig = {
             { test: /\.vue$/, loader: "vue-loader", include: [helpers.root("src")] },
             { test: /\.js$/, loader: "babel-loader", include: [helpers.root("src")] },
             {
+                test: /\.(jpg|png|gif|svg)$/,
+                loader: "image-webpack-loader",
+                // Specify enforce: 'pre' to apply the loader
+                // before url-loader/svg-url-loader
+                // and not duplicate it in rules with them
+                enforce: "pre",
+            },
+            {
+                test: /\.(ico|jpg|jpeg|png|eot|otf|webp|ttf|woff|woff2)(\?.*)?$/,
+                use: {
+                    loader: "url-loader",
+                    options: {
+                        limit: 10000,
+                        name: "static/[name].[hash:8].[ext]",
+                    },
+                },
+            },
+            {
+                test: /\.svg$/,
+                use: {
+                    loader: "svg-url-loader",
+                    options: {
+                        limit: 10 * 1024,
+                        name: "static/[name].[hash:8].[ext]",
+                        fallback: "file-loader",
+                    },
+                },
+            },
+            {
                 test: /\.css$/,
                 use: [
-                    isDevelopment ? "vue-style-loader" : MiniCSSExtractPlugin.loader,
+                    "vue-style-loader",
+                    MiniCSSExtractPlugin.loader,
                     { loader: "css-loader", options: { sourceMap: isDevelopment } },
                 ],
             },
@@ -37,6 +66,7 @@ const commonWebpackConfig = {
                 use: [
                     "vue-style-loader",
                     "css-loader",
+                    MiniCSSExtractPlugin.loader,
                     {
                         loader: "sass-loader",
                         options: {
@@ -52,7 +82,6 @@ const commonWebpackConfig = {
         ],
     },
     plugins: [
-        new CleanWebpackPlugin(),
         new VueLoaderPlugin(),
         new HtmlPlugin({
             template: "index.html",
