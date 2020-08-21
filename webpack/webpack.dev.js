@@ -1,16 +1,14 @@
-"use strict"
-
 const webpack = require("webpack");
+const path = require("path");
 const {merge} = require("webpack-merge");
 const FriendlyErrorsPlugin = require("friendly-errors-webpack-plugin");
-const helpers = require("./helpers");
-const commonConfig = require("./webpack.common.config");
-const environment = require("./env/dev.env");
+const commonConfig = require("./webpack.common");
 
 const devWebpackConfig = merge(commonConfig, {
-    devtool: "cheap-module-eval-source-map",
+    mode: "development",
+    devtool: "inline-source-map",
     output: {
-        path: helpers.root("dist"),
+        path: path.resolve(__dirname, "../dist"),
         publicPath: "/",
         filename: "js/[name].bundle.js",
         chunkFilename: "js/[id].chunk.js",
@@ -22,7 +20,6 @@ const devWebpackConfig = merge(commonConfig, {
         },
     },
     plugins: [
-        new webpack.EnvironmentPlugin(environment),
         new webpack.HotModuleReplacementPlugin(),
         new FriendlyErrorsPlugin(),
     ],
@@ -31,7 +28,7 @@ const devWebpackConfig = merge(commonConfig, {
         historyApiFallback: true,
         hot: true,
         overlay: true,
-        port: 8000,
+        port: 3000,
         stats: {
             normal: true,
         },

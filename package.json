@@ -1,15 +1,15 @@
 {
-    "name": "vue-webpack-project",
+    "name": "vue-webpack-boilerplate",
     "version": "1.0.0",
-    "description": "The Vue Project without CLI.",
+    "description": "Vue with Webpack boilerplate configurations.",
     "main": "index.js",
     "scripts": {
-        "dev": "cross-env NODE_ENV=development webpack-dev-server --progress",
-        "staging": "cross-env NODE_ENV=staging webpack",
-        "build": "cross-env NODE_ENV=production webpack --progress"
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "dev": "cross-env mode=development webpack-dev-server --content-base --config webpack/webpack.dev.js",
+        "build": "cross-env mode=production webpack --config webpack/webpack.prod.js"
     },
     "author": "Phong Tran",
-    "license": "ISC",
+    "license": "MIT",
     "dependencies": {
         "@babel/polyfill": "^7.10.4",
         "vue": "^2.6.11"

@@ -1,23 +1,20 @@
-"use strict";
-
+const path = require("path");
 const webpack = require("webpack");
 const { merge } = require("webpack-merge");
 const OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin");
 const TerserPlugin = require("terser-webpack-plugin");
 const MiniCSSExtractPlugin = require("mini-css-extract-plugin");
-const CompressionPlugin = require("compression-webpack-plugin");
-const helpers = require("./helpers");
-const commonConfig = require("./webpack.common.config");
+const commonConfig = require("./webpack.common");
 const isProduction = process.env.NODE_ENV === "production";
-const environment = isProduction ? require("./env/prod.env") : require("./env/staging.env");
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 
 const prodWebpackConfig = merge(commonConfig, {
+    mode: "production",
     output: {
-        path: helpers.root("dist"),
+        path: path.resolve(__dirname, "../dist"),
         publicPath: "/",
-        filename: "js/[hash].js",
-        chunkFilename: "js/[id].[hash].chunk.js",
+        filename: "js/[hash:8].js",
+        chunkFilename: "js/[id].[hash:8].chunk.js",
     },
     optimization: {
         runtimeChunk: "single",
@@ -35,8 +32,6 @@ const prodWebpackConfig = merge(commonConfig, {
         ],
         splitChunks: {
             chunks: "all",
-            maxInitialRequests: Infinity,
-            minSize: 0,
             cacheGroups: {
                 vendor: {
                     test: /[\\/]node_modules[\\/]/,
@@ -56,29 +51,12 @@ const prodWebpackConfig = merge(commonConfig, {
     },
     plugins: [
         new CleanWebpackPlugin(),
-        new webpack.EnvironmentPlugin(environment),
         new MiniCSSExtractPlugin({
             filename: "css/[name].[hash].css",
             chunkFilename: "css/[id].[hash].css",
         }),
-        new CompressionPlugin({
-            filename: "[path].gz[query]",
-            algorithm: "gzip",
-            test: new RegExp("\\.(js|css)$"),
-            threshold: 10240,
-            minRatio: 0.8,
-        }),
         new webpack.HashedModuleIdsPlugin(),
     ],
 });
-
-if (!isProduction) {
-    webpackConfig.devtool = "source-map";
-
-    if (process.env.npm_config_report) {
-        const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
-        webpackConfig.plugins.push(new BundleAnalyzerPlugin());
-    }
-}
 
 module.exports = prodWebpackConfig;

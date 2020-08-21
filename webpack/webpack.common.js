@@ -1,35 +1,32 @@
-"use strict";
-
+const path = require("path");
 const VueLoaderPlugin = require("vue-loader/lib/plugin");
 const HtmlPlugin = require("html-webpack-plugin");
 const MiniCSSExtractPlugin = require("mini-css-extract-plugin");
-const helpers = require("./helpers");
 const isDevelopment = process.env.NODE_ENV === "development";
-const env = process.env.NODE_ENV;
+const Analyzer = require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
 
 const commonWebpackConfig = {
-    mode: env || "development",
     entry: {
-        polyfill: "@babel/polyfill",
-        main: helpers.root("src", "main"),
+        main: path.resolve(__dirname, "../src/main.js"),
     },
     resolve: {
         extensions: [".js", ".vue"],
         alias: {
             vue$: isDevelopment ? "vue/dist/vue.runtime.js" : "vue/dist/vue.runtime.min.js",
-            "@": helpers.root("src"),
+            "@": path.resolve(__dirname, "../src"),
+            "@styles": path.resolve(__dirname, "../src/styles"),
+            "@components": path.resolve(__dirname, "../src/components"),
+            "@constants": path.resolve(__dirname, "../src/constants"),
+            "@utils": path.resolve(__dirname, "../src/utils"),
         },
     },
     module: {
         rules: [
-            { test: /\.vue$/, loader: "vue-loader", include: [helpers.root("src")] },
-            { test: /\.js$/, loader: "babel-loader", include: [helpers.root("src")] },
+            { test: /\.vue$/, loader: "vue-loader", include: [path.resolve(__dirname, "../src")] },
+            { test: /\.js$/, loader: "babel-loader", include: [path.resolve(__dirname, "../src")] },
             {
                 test: /\.(jpg|png|gif|svg)$/,
                 loader: "image-webpack-loader",
-                // Specify enforce: 'pre' to apply the loader
-                // before url-loader/svg-url-loader
-                // and not duplicate it in rules with them
                 enforce: "pre",
             },
             {
@@ -84,13 +81,19 @@ const commonWebpackConfig = {
     plugins: [
         new VueLoaderPlugin(),
         new HtmlPlugin({
-            template: "index.html",
+            favicon: "./public/favicon.ico",
+            template: "./public/index.html",
+            filename: "index.html",
             inject: true,
             minify: {
                 removeComments: true,
                 collapseWhitespace: true,
                 removeAttributeQuotes: true,
             },
+        }),
+        new Analyzer({
+            openAnalyzer: false,
+            analyzerMode: "static",
         }),
     ],
 };
